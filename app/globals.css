@@ -1,5 +1,6 @@
-/* @tailwind directives require Tailwind CSS processing. 
-   Remove these lines if not using Tailwind, or ensure Tailwind is set up in your build process. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   :root {
