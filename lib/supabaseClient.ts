@@ -1,14 +1,11 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-key";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export const createClient = () =>
   createBrowserClient(
-    supabaseUrl,
-    supabaseKey,
+    supabaseUrl!,
+    supabaseKey!,
   );
-
-// Export a singleton instance for easy use
-export const supabase = createClient();
