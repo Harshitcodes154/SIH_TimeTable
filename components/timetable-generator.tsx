@@ -1,0 +1,153 @@
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { XIcon } from "lucide-react"
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+export function ParameterForm() {
+  const [subjects, setSubjects] = useState<string[]>(["Mathematics", "Physics", "Chemistry"])
+  const [newSubject, setNewSubject] = useState("")
+  const [parameters, setParameters] = useState({
+    classrooms: "",
+    batches: "",
+    maxClassesPerDay: "",
+    semester: "",
+    department: "",
+  })
+  const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setParameters({ ...parameters, [name]: value })
+  }
+
+  const addSubject = () => {
+    if (newSubject.trim() && !subjects.includes(newSubject.trim())) {
+      setSubjects([...subjects, newSubject.trim()])
+      setNewSubject("")
+    }
+  }
+
+  const removeSubject = (subjectToRemove: string) => {
+    // The parameter 's' now has an explicit type 'string'
+    setSubjects(subjects.filter((s: string) => s !== subjectToRemove))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setMessage(null)
+
+    // --- This is the missing logic ---
+    // You would send the data to your backend here.
+    // Example:
+    /*
+    try {
+      const response = await fetch('http://localhost:5000/api/parameters', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Include auth token if required
+          // 'Authorization': `Bearer ${your_auth_token}`
+        },
+        body: JSON.stringify({ ...parameters, subjects }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit parameters');
+      }
+
+      const result = await response.json();
+      setMessage('Parameters submitted successfully!');
+      console.log("Server response:", result);
+
+    } catch (err: any) {
+      setError(err.message);
+    }
+    */
+    console.log("Parameters submitted:", { ...parameters, subjects })
+    setMessage("Parameters submitted successfully (logged to console).")
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Scheduling Parameters</h2>
+        <p className="text-muted-foreground">Set the parameters for generating the class schedule.</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>General Parameters</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="department">Department</Label>
+              <Input id="department" name="department" value={parameters.department} onChange={handleInputChange} placeholder="e.g., Computer Science" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="semester">Semester</Label>
+              <Input id="semester" name="semester" value={parameters.semester} onChange={handleInputChange} placeholder="e.g., 5th" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="classrooms">Number of Classrooms</Label>
+              <Input id="classrooms" name="classrooms" type="number" value={parameters.classrooms} onChange={handleInputChange} placeholder="e.g., 10" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="batches">Number of Batches</Label>
+              <Input id="batches" name="batches" type="number" value={parameters.batches} onChange={handleInputChange} placeholder="e.g., 4" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="maxClassesPerDay">Max Classes per Day</Label>
+              <Input id="maxClassesPerDay" name="maxClassesPerDay" type="number" value={parameters.maxClassesPerDay} onChange={handleInputChange} placeholder="e.g., 6" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Subjects</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Input
+                value={newSubject}
+                onChange={(e) => setNewSubject(e.target.value)}
+                placeholder="Add a new subject"
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSubject(); } }}
+              />
+              <Button type="button" onClick={addSubject}>Add</Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {subjects.map((subject) => (
+                <div key={subject} className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-sm text-secondary-foreground">
+                  {subject}
+                  <button type="button" onClick={() => removeSubject(subject)} className="rounded-full hover:bg-destructive/80">
+                    <XIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end">
+          <Button type="submit">Generate Schedule</Button>
+        </div>
+        {message && <p className="text-sm text-green-600">{message}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
+      </form>
+    </div>
+  )
+}

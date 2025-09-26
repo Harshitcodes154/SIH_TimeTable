@@ -1,0 +1,45 @@
+{
+  "users": [
+    {
+      "username": "admin",
+      "password": "password",
+      "role": "admin"
+    },
+    {
+      "username": "prof.johnson",
+      "password": "password",
+      "role": "faculty"
+    }
+  ],
+  "parameters": {},
+  "timetables": [
+    {
+      "id": "t1",
+      "department": "Computer Science",
+      "semester": "Semester 3",
+      "submittedBy": "Dr. Smith",
+      "submittedDate": "2024-01-15",
+      "status": "pending",
+      "conflicts": 0,
+      "score": 95,
+      "preview": [
+        { "time": "9:00-10:00", "monday": "Algorithms", "tuesday": "Database Systems", "wednesday": "Web Development", "thursday": "Operating Systems", "friday": "Data Structures" },
+        { "time": "10:00-11:00", "monday": "Database Systems", "tuesday": "Algorithms", "wednesday": "Operating Systems", "thursday": "Web Development", "friday": "Algorithms" }
+      ]
+    },
+    {
+      "id": "t2",
+      "department": "Mathematics",
+      "semester": "Semester 2",
+      "submittedBy": "Prof. Johnson",
+      "submittedDate": "2024-01-14",
+      "status": "under-review",
+      "conflicts": 2,
+      "score": 87,
+      "preview": [
+        { "time": "9:00-10:00", "monday": "Algebra", "tuesday": "Calculus", "wednesday": "Linear Algebra", "thursday": "Discrete Math", "friday": "Statistics" },
+        { "time": "10:00-11:00", "monday": "Calculus", "tuesday": "Algebra", "wednesday": "Discrete Math", "thursday": "Linear Algebra", "friday": "Calculus" }
+      ]
+    }
+  ]
+}
