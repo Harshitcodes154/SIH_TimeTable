@@ -1,0 +1,20 @@
+[build]
+  command = "pnpm install && pnpm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "18.18.0"
+  NPM_FLAGS = "--version"
+  PNPM_VERSION = "8.15.0"
+  # Default environment variables for build
+  NEXT_PUBLIC_SUPABASE_URL = "https://placeholder.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "placeholder-key"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Handle client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
