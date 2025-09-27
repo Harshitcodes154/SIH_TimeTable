@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { GraduationCap } from "lucide-react"
-import { supabase } from "@/lib/supabaseClient" // Import Supabase client
+import { createClient } from "@/lib/supabaseClient" // Import Supabase client
 import { useAuth } from "@/app/AuthContext" // Import AuthContext
 
 export function LoginForm() {
@@ -18,7 +18,7 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [isRegistering, setIsRegistering] = useState(false)
-  const { login } = useAuth() // Use the login function from AuthContext
+  const { login } = useAuth() // Use the login function from AuthContext`n  const supabase = createClient() // Create Supabase client instance
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
