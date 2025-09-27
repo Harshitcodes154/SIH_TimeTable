@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { GraduationCap } from "lucide-react"
 import { createClient } from "@/lib/supabaseClient" // Import Supabase client
 import { useAuth } from "@/app/AuthContext" // Import AuthContext
+import { SupabaseConfigWarning } from "@/components/supabase-config-warning"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
@@ -18,7 +19,19 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [isRegistering, setIsRegistering] = useState(false)
-  const { login } = useAuth() // Use the login function from AuthContext`n  const supabase = createClient() // Create Supabase client instance
+  const { login } = useAuth() // Use the login function from AuthContext
+
+  // Check if Supabase is configured
+  const isSupabaseConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && 
+                                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+                                process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://your-project-id.supabase.co' &&
+                                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'your-anon-key-here'
+
+  // Show configuration warning if Supabase is not properly configured
+  if (!isSupabaseConfigured) {
+    return <SupabaseConfigWarning />
+  }
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,6 +39,16 @@ export function LoginForm() {
     setError("")
 
     try {
+      // Create Supabase client with error handling
+      let supabase;
+      try {
+        supabase = createClient();
+      } catch (clientError) {
+        setError("Configuration error: Please contact administrator to set up Supabase connection.");
+        setIsLoading(false);
+        return;
+      }
+
       let data;
       if (isRegistering) {
         // Use Supabase for sign-up
