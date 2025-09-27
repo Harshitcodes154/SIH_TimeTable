@@ -32,7 +32,6 @@ export function LoginForm() {
     return <SupabaseConfigWarning />
   }
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
