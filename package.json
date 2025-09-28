@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "server": "node index.js/server.js",
-    "postinstall": "npm run build || true"
+    "server": "node index.js/server.js"
   },
   "engines": {
     "node": ">=18.0.0",

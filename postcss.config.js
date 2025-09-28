@@ -1,1 +1,7 @@
-// This file is kept for compatibility - main config is in postcss.config.mjs
+/** @type {import('postcss').Config} */
+module.exports = {
+  plugins: [
+    require('tailwindcss'),
+    require('autoprefixer'),
+  ],
+}
