@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { X } from "lucide-react"
 import { ConfigWarning } from "./config-warning"
+import { isValidConfig } from "@/lib/supabaseClient"
 
 type UserType = {
   name: string
@@ -25,17 +26,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
 
   useEffect(() => {
     // Check if Supabase is properly configured
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    
-    const configured = supabaseUrl && 
-                       supabaseKey && 
-                       supabaseUrl !== 'https://placeholder.supabase.co' && 
-                       supabaseKey !== 'placeholder-key' &&
-                       !supabaseUrl.includes('placeholder') &&
-                       !supabaseKey.includes('placeholder')
-    
-    setIsSupabaseConfigured(!!configured)
+    setIsSupabaseConfigured(isValidConfig())
   }, [])
 
   return (

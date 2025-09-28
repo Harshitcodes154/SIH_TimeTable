@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { GraduationCap } from "lucide-react"
-import { createClient } from "@/lib/supabaseClient" // Import Supabase client
+import { createClient, isValidConfig } from "@/lib/supabaseClient" // Import Supabase client
 import { useAuth } from "@/app/AuthContext" // Import AuthContext
 import { SupabaseConfigWarning } from "@/components/supabase-config-warning"
 
@@ -38,16 +38,12 @@ export function LoginForm() {
     setError("")
 
     try {
-      // Create Supabase client with error handling
-      let supabase;
-      try {
-        supabase = createClient();
-      } catch (clientError: any) {
-        if (clientError.message.includes('placeholder') || clientError.message.includes('not properly configured')) {
-          setError("Supabase is not configured. Please contact administrator to set up the database connection.");
-        } else {
-          setError("Configuration error: Unable to connect to database.");
-        }
+            // Create Supabase client with error handling
+      const supabase = createClient();
+      
+      // Check if using placeholder configuration
+      if (typeof window !== 'undefined' && !isValidConfig()) {
+        setError("Application is not configured. Please contact administrator to set up the database connection.");
         setIsLoading(false);
         return;
       }

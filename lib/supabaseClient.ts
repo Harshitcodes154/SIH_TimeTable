@@ -1,25 +1,27 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
 
 // Check if environment variables exist and are not placeholder values
-const isValidConfig = supabaseUrl && 
-                      supabaseKey && 
-                      supabaseUrl !== 'https://placeholder.supabase.co' && 
-                      supabaseKey !== 'placeholder-key' &&
-                      !supabaseUrl.includes('placeholder') &&
-                      !supabaseKey.includes('placeholder');
+export const isValidConfig = () => {
+  return supabaseUrl && 
+         supabaseKey && 
+         supabaseUrl !== 'https://placeholder.supabase.co' && 
+         supabaseKey !== 'placeholder-key' &&
+         !supabaseUrl.includes('placeholder') &&
+         !supabaseKey.includes('placeholder');
+};
 
-if (!isValidConfig) {
-  throw new Error(
-    'Supabase is not properly configured. Please set up your actual NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment variables.'
-  );
-}
-
-export const createClient = () =>
-  createBrowserClient(
+export const createClient = () => {
+  // Only validate in browser environment, not during build
+  if (typeof window !== 'undefined' && !isValidConfig()) {
+    console.warn('Supabase is not properly configured. Using placeholder configuration.');
+  }
+  
+  return createBrowserClient(
     supabaseUrl,
     supabaseKey,
   );
+};
