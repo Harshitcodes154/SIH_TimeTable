@@ -1,7 +1,2 @@
-/** @type {import('postcss').Config} */
-module.exports = {
-  plugins: [
-    require('tailwindcss'),
-    require('autoprefixer'),
-  ],
-}
+// This file is disabled - using postcss.config.js instead
+// Next.js prefers .js extension for PostCSS configuration

@@ -1,12 +1,24 @@
 # PostCSS Configuration Fix
 
-This directory contains multiple PostCSS configurations to handle different deployment scenarios:
+## Issue: "PostCSS Plugin was passed as a function using require()"
 
-- `postcss.config.js` - Main configuration (CommonJS format)
-- `postcss.config.mjs` - ESM format (backup)
-- `postcss.config.backup.js` - Simplified fallback
+**Problem:** Next.js requires PostCSS plugins to be provided as strings, not as functions using `require()`.
 
-Using array format for better compatibility:
+**Solution:** Use object format with string keys instead of array format with require() calls.
+
+## Correct Configuration:
+
+```js
+/** @type {import('postcss').Config} */
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
+
+## ❌ Incorrect (causes build error):
 ```js
 module.exports = {
   plugins: [
@@ -16,4 +28,14 @@ module.exports = {
 }
 ```
 
-This resolves the "missing plugins key" error.
+## ✅ Correct (works with Next.js):
+```js
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
+
+This resolves the "Malformed PostCSS Configuration" error in Netlify builds.

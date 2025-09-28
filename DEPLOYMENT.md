@@ -55,9 +55,20 @@ Ensure Netlify uses these build settings:
 ```
 
 **If getting PostCSS errors:**
-```bash
-# Check for duplicate config files
-rm postcss.config.js  # Keep only .mjs version
+```js
+// Correct PostCSS configuration for Next.js
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
+
+**❌ Do NOT use require() format:**
+```js
+// This will cause "PostCSS Plugin was passed as a function" error
+plugins: [require('tailwindcss'), require('autoprefixer')]
 ```
 
 **If getting Next.js errors:**
