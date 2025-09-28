@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { X } from "lucide-react"
+import { UserGuideCard } from "@/components/user-guide-card"
 
 export function ParameterForm() {
-  const [subjects, setSubjects] = useState<string[]>(["Mathematics", "Physics", "Chemistry"])
+  const [subjects, setSubjects] = useState<string[]>([])
   const [newSubject, setNewSubject] = useState("")
   const [parameters, setParameters] = useState({
     classrooms: "",
@@ -41,6 +42,32 @@ export function ParameterForm() {
     e.preventDefault()
     setError(null)
     setMessage(null)
+
+    // Validate required fields
+    if (!parameters.department.trim()) {
+      setError("Department is required")
+      return
+    }
+    if (!parameters.semester.trim()) {
+      setError("Semester is required")
+      return
+    }
+    if (!parameters.classrooms.trim() || parseInt(parameters.classrooms) <= 0) {
+      setError("Please enter a valid number of classrooms")
+      return
+    }
+    if (!parameters.batches.trim() || parseInt(parameters.batches) <= 0) {
+      setError("Please enter a valid number of batches")
+      return
+    }
+    if (!parameters.maxClassesPerDay.trim() || parseInt(parameters.maxClassesPerDay) <= 0) {
+      setError("Please enter a valid maximum classes per day")
+      return
+    }
+    if (subjects.length === 0) {
+      setError("Please add at least one subject")
+      return
+    }
 
     // --- This is the missing logic ---
     // You would send the data to your backend here.
@@ -77,8 +104,10 @@ export function ParameterForm() {
     <div className="space-y-6">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Scheduling Parameters</h2>
-        <p className="text-muted-foreground">Set the parameters for generating the class schedule.</p>
+        <p className="text-muted-foreground">Set the parameters for generating the class schedule. Please fill in all the details below to create your custom timetable.</p>
       </div>
+
+      <UserGuideCard />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
@@ -87,31 +116,31 @@ export function ParameterForm() {
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="department">Department</Label>
-              <Input id="department" name="department" value={parameters.department} onChange={handleInputChange} placeholder="e.g., Computer Science" />
+              <Label htmlFor="department">Department *</Label>
+              <Input id="department" name="department" value={parameters.department} onChange={handleInputChange} placeholder="e.g., Computer Science" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="semester">Semester</Label>
-              <Input id="semester" name="semester" value={parameters.semester} onChange={handleInputChange} placeholder="e.g., 5th" />
+              <Label htmlFor="semester">Semester *</Label>
+              <Input id="semester" name="semester" value={parameters.semester} onChange={handleInputChange} placeholder="e.g., 5th" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="classrooms">Number of Classrooms</Label>
-              <Input id="classrooms" name="classrooms" type="number" value={parameters.classrooms} onChange={handleInputChange} placeholder="e.g., 10" />
+              <Label htmlFor="classrooms">Number of Classrooms *</Label>
+              <Input id="classrooms" name="classrooms" type="number" value={parameters.classrooms} onChange={handleInputChange} placeholder="e.g., 10" min="1" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="batches">Number of Batches</Label>
-              <Input id="batches" name="batches" type="number" value={parameters.batches} onChange={handleInputChange} placeholder="e.g., 4" />
+              <Label htmlFor="batches">Number of Batches *</Label>
+              <Input id="batches" name="batches" type="number" value={parameters.batches} onChange={handleInputChange} placeholder="e.g., 4" min="1" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="maxClassesPerDay">Max Classes per Day</Label>
-              <Input id="maxClassesPerDay" name="maxClassesPerDay" type="number" value={parameters.maxClassesPerDay} onChange={handleInputChange} placeholder="e.g., 6" />
+              <Label htmlFor="maxClassesPerDay">Max Classes per Day *</Label>
+              <Input id="maxClassesPerDay" name="maxClassesPerDay" type="number" value={parameters.maxClassesPerDay} onChange={handleInputChange} placeholder="e.g., 6" min="1" max="12" required />
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Subjects</CardTitle>
+            <CardTitle>Subjects *</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
@@ -124,14 +153,18 @@ export function ParameterForm() {
               <Button type="button" onClick={addSubject}>Add</Button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {subjects.map((subject) => (
-                <div key={subject} className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-sm text-secondary-foreground">
-                  {subject}
-                  <button type="button" onClick={() => removeSubject(subject)} className="rounded-full hover:bg-destructive/80">
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
+              {subjects.length > 0 ? (
+                subjects.map((subject) => (
+                  <div key={subject} className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-sm text-secondary-foreground">
+                    {subject}
+                    <button type="button" onClick={() => removeSubject(subject)} className="rounded-full hover:bg-destructive/80">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">No subjects added yet. Add subjects using the input field above.</p>
+              )}
             </div>
           </CardContent>
         </Card>

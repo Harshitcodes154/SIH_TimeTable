@@ -14,7 +14,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function ParameterForm() {
-  const [subjects, setSubjects] = useState<string[]>(["Mathematics", "Physics", "Chemistry"])
+  const [subjects, setSubjects] = useState<string[]>([])
   const [newSubject, setNewSubject] = useState("")
   const [parameters, setParameters] = useState({
     classrooms: "",
@@ -47,6 +47,32 @@ export function ParameterForm() {
     e.preventDefault()
     setError(null)
     setMessage(null)
+
+    // Validate required fields
+    if (!parameters.department.trim()) {
+      setError("Department is required")
+      return
+    }
+    if (!parameters.semester.trim()) {
+      setError("Semester is required")
+      return
+    }
+    if (!parameters.classrooms.trim() || parseInt(parameters.classrooms) <= 0) {
+      setError("Please enter a valid number of classrooms")
+      return
+    }
+    if (!parameters.batches.trim() || parseInt(parameters.batches) <= 0) {
+      setError("Please enter a valid number of batches")
+      return
+    }
+    if (!parameters.maxClassesPerDay.trim() || parseInt(parameters.maxClassesPerDay) <= 0) {
+      setError("Please enter a valid maximum classes per day")
+      return
+    }
+    if (subjects.length === 0) {
+      setError("Please add at least one subject")
+      return
+    }
 
     // --- This is the missing logic ---
     // You would send the data to your backend here.
