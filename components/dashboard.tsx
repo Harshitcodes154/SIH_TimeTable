@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { X } from "lucide-react"
+import { ConfigWarning } from "./config-warning"
 
 type UserType = {
   name: string
@@ -20,6 +21,22 @@ type DashboardProps = {
 
 export function Dashboard({ user, onLogout }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<'parameters' | 'timetable' | 'review'>('parameters')
+  const [isSupabaseConfigured, setIsSupabaseConfigured] = useState(true)
+
+  useEffect(() => {
+    // Check if Supabase is properly configured
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    const configured = supabaseUrl && 
+                       supabaseKey && 
+                       supabaseUrl !== 'https://placeholder.supabase.co' && 
+                       supabaseKey !== 'placeholder-key' &&
+                       !supabaseUrl.includes('placeholder') &&
+                       !supabaseKey.includes('placeholder')
+    
+    setIsSupabaseConfigured(!!configured)
+  }, [])
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,18 +90,31 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       </nav>
 
       <main className="container mx-auto px-4 py-8">
+        {!isSupabaseConfigured && (
+          <div className="mb-8">
+            <ConfigWarning />
+          </div>
+        )}
+        
         {activeTab === 'parameters' && <ParameterFormComponent />}
         {activeTab === 'timetable' && (
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold mb-4">Timetable Generation</h2>
             <p className="text-muted-foreground mb-8">Configure parameters first, then generate your timetable.</p>
-            <Button size="lg">Generate New Timetable</Button>
+            <Button size="lg" disabled={!isSupabaseConfigured}>
+              {isSupabaseConfigured ? 'Generate New Timetable' : 'Database Required'}
+            </Button>
           </div>
         )}
         {activeTab === 'review' && (
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold mb-4">Review Generated Timetables</h2>
-            <p className="text-muted-foreground">View and manage your generated timetables here.</p>
+            <p className="text-muted-foreground">
+              {isSupabaseConfigured 
+                ? 'View and manage your generated timetables here.'
+                : 'Configure database connection to view saved timetables.'
+              }
+            </p>
           </div>
         )}
       </main>

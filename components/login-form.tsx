@@ -42,8 +42,12 @@ export function LoginForm() {
       let supabase;
       try {
         supabase = createClient();
-      } catch (clientError) {
-        setError("Configuration error: Please contact administrator to set up Supabase connection.");
+      } catch (clientError: any) {
+        if (clientError.message.includes('placeholder') || clientError.message.includes('not properly configured')) {
+          setError("Supabase is not configured. Please contact administrator to set up the database connection.");
+        } else {
+          setError("Configuration error: Unable to connect to database.");
+        }
         setIsLoading(false);
         return;
       }
