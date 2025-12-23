@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "server": "node index.js/server.js"
+    "server": "node index.js/server.js",
+    "migrate:supabase-to-firestore": "node scripts/migrate_supabase_to_firestore.js"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -20,7 +21,9 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.3",
     "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.58.0",
+  "@supabase/supabase-js": "^2.58.0",
+  "firebase": "^10.10.0",
+  "firebase-admin": "^12.13.0",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.2",
     "class-variance-authority": "^0.7.1",

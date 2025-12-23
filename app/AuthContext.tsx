@@ -1,5 +1,8 @@
 "use client"
 import { createContext, useState, useEffect, useContext, ReactNode } from "react"
+import { auth, db } from "@/lib/firebaseClient"
+import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth"
+import { doc, getDoc } from "firebase/firestore"
 
 // Define the shape of the user data and the context
 type UserType = {
@@ -25,17 +28,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Check for existing session in localStorage when the app loads
   useEffect(() => {
-    try {
-      const token = localStorage.getItem("userToken")
-      const username = localStorage.getItem("username")
-      const role = localStorage.getItem("role")
-      if (token && username && role) {
-        setUser({ name: username, role, token })
-        setIsAuthenticated(true)
+    // Listen to Firebase auth state changes to keep the context in sync
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      try {
+        if (fbUser) {
+          const token = await fbUser.getIdToken()
+          // Try to read role/name from Firestore users collection
+          let name = fbUser.email ?? "User"
+          let role = localStorage.getItem("role") || ""
+          try {
+            const userDoc = await getDoc(doc(db, "users", fbUser.uid))
+            if (userDoc.exists()) {
+              const data = userDoc.data() as any
+              role = data.role ?? role
+              name = data.name ?? name
+            }
+          } catch (e) {
+            console.warn("Could not read user profile from Firestore:", e)
+          }
+
+          localStorage.setItem("userToken", token)
+          localStorage.setItem("username", name)
+          localStorage.setItem("role", role)
+          setUser({ name, role, token })
+          setIsAuthenticated(true)
+        } else {
+          // Not logged in
+          localStorage.removeItem("userToken")
+          localStorage.removeItem("username")
+          localStorage.removeItem("role")
+          setUser(null)
+          setIsAuthenticated(false)
+        }
+      } catch (err) {
+        console.error("Auth state handling error:", err)
       }
-    } catch (error) {
-      console.error("Could not access localStorage:", error);
-    }
+    })
+
+    return () => unsubscribe()
   }, [])
 
   const login = (userData: UserType) => {
@@ -47,11 +77,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
-    localStorage.removeItem("userToken")
-    localStorage.removeItem("username")
-    localStorage.removeItem("role")
-    setUser(null)
-    setIsAuthenticated(false)
+    // Sign out from Firebase as well
+    try {
+      firebaseSignOut(auth).catch(() => {})
+    } finally {
+      localStorage.removeItem("userToken")
+      localStorage.removeItem("username")
+      localStorage.removeItem("role")
+      setUser(null)
+      setIsAuthenticated(false)
+    }
   }
 
   return (

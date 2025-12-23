@@ -8,9 +8,11 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { GraduationCap } from "lucide-react"
-import { createClient, isValidConfig } from "@/lib/supabaseClient" // Import Supabase client
 import { useAuth } from "@/app/AuthContext" // Import AuthContext
-import { SupabaseConfigWarning } from "@/components/supabase-config-warning"
+// Firebase Auth + Firestore
+import { auth, db } from "@/lib/firebaseClient"
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, getIdToken } from "firebase/auth"
+import { doc, setDoc, getDoc } from "firebase/firestore"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
@@ -21,16 +23,7 @@ export function LoginForm() {
   const [isRegistering, setIsRegistering] = useState(false)
   const { login } = useAuth() // Use the login function from AuthContext
 
-  // Check if Supabase is configured
-  const isSupabaseConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && 
-                                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
-                                process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://your-project-id.supabase.co' &&
-                                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'your-anon-key-here'
-
-  // Show configuration warning if Supabase is not properly configured
-  if (!isSupabaseConfigured) {
-    return <SupabaseConfigWarning />
-  }
+  // (Firebase) Optional: you can check for Firebase config here if desired
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,62 +31,40 @@ export function LoginForm() {
     setError("")
 
     try {
-            // Create Supabase client with error handling
-      const supabase = createClient();
-      
-      // Check if using placeholder configuration
-      if (typeof window !== 'undefined' && !isValidConfig()) {
-        setError("Application is not configured. Please contact administrator to set up the database connection.");
-        setIsLoading(false);
-        return;
-      }
+            // Use Firebase Auth for register / sign-in
+            if (isRegistering) {
+              // Create user
+              const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+              const user = userCredential.user
 
-      let data;
-      if (isRegistering) {
-        // Use Supabase for sign-up
-        const { data: authData, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              role: role // Store the user role in user metadata
+              // Save role and profile to Firestore users collection
+              await setDoc(doc(db, "users", user.uid), {
+                email: user.email,
+                role,
+                name: user.email,
+                createdAt: new Date().toISOString(),
+              })
+
+              const token = await getIdToken(user)
+              login({ name: user.email ?? "User", role, token })
+            } else {
+              // Sign in existing user
+              const userCredential = await signInWithEmailAndPassword(auth, email, password)
+              const user = userCredential.user
+
+              // Read role from Firestore
+              const userDoc = await getDoc(doc(db, "users", user.uid))
+              const userData = userDoc.exists() ? (userDoc.data() as any) : null
+              const userRole = (role || userData?.role) as string | undefined
+
+              if (!userRole) {
+                setError("Role is required. Please contact an administrator to assign a role.")
+                return
+              }
+
+              const token = await getIdToken(user)
+              login({ name: user.email ?? "User", role: userRole, token })
             }
-          }
-        });
-        if (signUpError) throw signUpError;
-        data = authData;
-      } else {
-        // Use Supabase for sign-in
-        const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (signInError) throw signInError;
-        data = authData;
-      }
-      
-      if (data.user) {
-        // Supabase authentication successful
-        const session = data.session ?? (await supabase.auth.getSession()).data.session;
-        const token = session?.access_token;
-        const name = data.user.email ?? (data.user.user_metadata as any)?.name ?? "User";
-        const userRole = (role || (data.user.user_metadata as any)?.role) as string | undefined;
-
-        if (!token) {
-          setError("No active session. Please verify your email and try again.");
-          return;
-        }
-        if (!userRole) {
-          setError("Role is required.");
-          return;
-        }
-
-        login({
-          name,
-          role: userRole,
-          token,
-        });
-      }
 
     } catch (err: any) {
       setError(err.message)

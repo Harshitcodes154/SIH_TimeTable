@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { X } from "lucide-react"
 import { ConfigWarning } from "./config-warning"
-import { isValidConfig } from "@/lib/supabaseClient"
+import { firebaseConfig } from "@/lib/firebaseClient"
 
 type UserType = {
   name: string
@@ -25,8 +25,13 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
   const [isSupabaseConfigured, setIsSupabaseConfigured] = useState(true)
 
   useEffect(() => {
-    // Check if Supabase is properly configured
-    setIsSupabaseConfigured(isValidConfig())
+    // Check if Firebase config is present (used as DB/auth backend)
+    const configured = !!(
+      process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
+      process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN &&
+      process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    )
+    setIsSupabaseConfigured(configured)
   }, [])
 
   return (
