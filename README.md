@@ -1,10 +1,4 @@
-# Smart Classroom & Timetable Scheduler 🚀
-
-**Smart India Hackathon 2025**  
-**Problem Statement ID:** SIH25028  
-**Theme:** Smart Education  
-**PS Category:** Software  
-**Team Name:** TEAM H4CKERS  
+# Smart Classroom & Timetable Scheduler 🚀  
 
 ---
 
@@ -169,14 +163,5 @@ This solution significantly reduces administrative workload, minimizes schedulin
 
 ---
 
-## 👨‍💻 Team
-
-**TEAM H4CKERS**  
-Smart India Hackathon 2025
 
 ---
-
-## 📜 License
-
-This project is developed for **Smart India Hackathon 2025**.  
-License details can be added as per institutional or open-source requirements.
